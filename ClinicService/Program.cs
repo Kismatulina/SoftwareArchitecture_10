@@ -1,6 +1,7 @@
 
 using ClinicService.Services;
 using ClinicService.Services.Impl;
+using ClinicService.Services.Implementation;
 using Microsoft.Data.Sqlite;
 
 namespace ClinicService
@@ -11,13 +12,14 @@ namespace ClinicService
         public static void Main(string[] args)
         {
 
-            //ConfigureSqlLiteConnection(); // закоментировали, поскольку базу данных уже получили
+            //ConfigureSqlLiteConnection(); // Создание базы данных и подключения к ней, закоментировали, поскольку базу данных уже получили
 
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.метод AddScoped за место синглтон, будет создаваться репоз на котролер и умирать с ним
             builder.Services.AddScoped<IClientRepository, ClientRepository>();
-
+            builder.Services.AddScoped<IPetRepository, PetRepository>(); //доб
+            builder.Services.AddScoped<IConsultationRepository, ConsultationRepository>(); //доб
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -40,7 +42,7 @@ namespace ClinicService
 
             app.Run();
         }
-
+        // Настройка подключения к базе данных
         private static void ConfigureSqlLiteConnection()
         {
             const string connectionString = "Data Source = clinic.db;"; //создали файл в программе SQLiteStudio-3.4.17-windows-x64-installer
@@ -48,7 +50,10 @@ namespace ClinicService
             connection.Open();
             PrepareSchema(connection);//попытаемся запустить нашу программу
         }
-        
+        /// <summary>
+        /// Работа с базой данных
+        /// </summary>
+        /// <param name="connection">База данных к которой осуществленно соединение</param>
         private static void PrepareSchema(SqliteConnection connection)
         {
             SqliteCommand sqliteCommand = connection.CreateCommand();
